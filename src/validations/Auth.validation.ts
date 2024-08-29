@@ -1,6 +1,6 @@
-const Joi = require("joi");
+import Joi from "joi";
 
-const register = {
+const Register = {
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
@@ -8,14 +8,11 @@ const register = {
   }),
 };
 
-const login = {
+const Login = {
   body: Joi.object().keys({
     email: Joi.string().required(),
     password: Joi.string().required(),
   }),
 };
 
-module.exports = {
-  register,
-  login,
-};
+export default { Register, Login };
