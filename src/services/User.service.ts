@@ -1,8 +1,8 @@
 import httpStatus from "http-status";
-const Userm = require("../models/User.model.js");
+import User from "../models/User.model.js";
 
 import ApiError from "../utils/ApiError.js";
-import mongoose from "mongoose";
+import { ObjectId } from "mongoose";
 
 /**
  * Create a user
@@ -12,11 +12,29 @@ import mongoose from "mongoose";
 const createUser = async (userBody: {
   email: string;
   [key: string]: any;
-}): Promise<typeof Userm> => {
-  if (await Userm.isEmailTaken(userBody.email)) {
+}): Promise<typeof User> => {
+  if (await User.isEmailTaken(userBody.email)) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Email already taken");
   }
-  return Userm.create(userBody) as unknown as typeof Userm;
+  return User.create(userBody) as unknown as typeof User;
 };
 
-export default { createUser };
+/**
+ * Get user by id
+ * @param {ObjectId} id
+ * @returns {Promise<User>}
+ */
+const getUserById = async (id: ObjectId): Promise<Document> => {
+  return User.findById(id);
+};
+
+/**
+ * Get user by email
+ * @param {string} email
+ * @returns {Promise<User>}
+ */
+const getUserByEmail = async (email: string): Promise<typeof User> => {
+  return User.findOne({ email });
+};
+
+export default { createUser, getUserById, getUserByEmail };

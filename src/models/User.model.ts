@@ -1,6 +1,14 @@
 import mongoose, { ObjectId } from "mongoose";
 import validator from "validator";
 import { roles } from "../config/Roles.js";
+import toJSON from "./plugins/toJSON.plugin.js";
+import bcrypt from "bcryptjs";
+import { Document } from "mongoose";
+
+interface UserDocument extends Document {
+  password: string;
+  isPasswordMatch(password: string): Promise<boolean>;
+}
 
 const userSchema = new mongoose.Schema(
   {
@@ -15,7 +23,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       trim: true,
       lowercase: true,
-      validate(value) {
+      validate(value: string) {
         if (!validator.isEmail(value)) {
           throw new Error("Invalid email");
         }
@@ -50,6 +58,8 @@ const userSchema = new mongoose.Schema(
   }
 );
 
+userSchema.plugin(toJSON);
+
 /**
  * Check if email is taken
  * @param {string} email - The user's email
@@ -63,6 +73,25 @@ userSchema.statics.isEmailTaken = async function (
   const user = await this.findOne({ email, _id: { $ne: excludeUserId } });
   return !!user;
 };
+
+userSchema.methods.isPasswordMatch = async function (
+  this: UserDocument,
+  password: string
+): Promise<boolean> {
+  const user = this;
+  if (!user) {
+    throw new Error("User is undefined");
+  }
+  return bcrypt.compare(password, user.password);
+};
+
+userSchema.pre("save", async function (next) {
+  const user = this;
+  if (user.isModified("password")) {
+    user.password = await bcrypt.hash(user.password, 8);
+  }
+  next();
+});
 
 /**
  * Check if password matches the user's password

@@ -2,8 +2,9 @@ import express from "express";
 import httpStatus from "http-status";
 import dotenv from "dotenv";
 import ApiError from "./utils/ApiError.js";
+import ErrorHandler from "./utils/ErrorHandler.js";
 import MainRouter from "./routes/MainRouter.js";
-import mongoSanitize from 'express-mongo-sanitize';
+import mongoSanitize from "express-mongo-sanitize";
 
 dotenv.config();
 
@@ -24,6 +25,9 @@ App.get("/", (_req, res) => {
 });
 
 App.use(MainRouter);
+
+// Error handling middleware
+App.use(ErrorHandler);
 
 // send back a 404 error for any unknown api request
 App.use((req, res, next) => {

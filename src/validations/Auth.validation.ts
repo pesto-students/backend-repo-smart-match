@@ -15,4 +15,16 @@ const Login = {
   }),
 };
 
-export default { Register, Login };
+const Logout = {
+  body: Joi.object().keys({
+    refreshToken: Joi.string().required(),
+  }),
+};
+
+const RefreshTokens = {
+  body: Joi.object().keys({
+    refreshToken: Joi.string().required(),
+  }),
+};
+
+export default { Register, Login, Logout, RefreshTokens };
